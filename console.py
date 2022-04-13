@@ -30,6 +30,69 @@ class HBNBCommand(cmd.Cmd):
             'latitude': float, 'longitude': float
             }
 
+    # Helper Functions
+
+    def get_value_format(param):
+        """ Validation for params with special formatting """
+        try:
+            value = param[param.find('=') + 1:]
+        except IndexError:
+            return None
+
+        # Check if param contains "
+        # If it does it's a string
+        if ('\"' in value):
+
+            # If its missing a " at end or beginning
+            # param is invalid
+            if (('\"' not in value[len(value) - 1]) or
+                    ('\"' not in value[0])):
+                return None
+
+            # Check if param is empty string
+            elif (len(value) == 2):
+                return ""
+            else:
+                # remove begin and end quote
+                value = value[1:len(value) - 1]
+
+                # If there are quotes that weren't escaped
+                # Param is invalid
+                if (('\"' in value) and
+                        ('\\\"' not in value)):
+                    return None
+
+                # Only Escaped quotes remain,
+                # remove escape characters
+                value.replace('\\\"', '\"')
+
+                # Change _ to spaces
+                if ('_' in param):
+                    value.replace('_', ' ')
+                return value
+        # If not a string, check if it has a .
+        # If it does, it may be a float
+        elif ('.' in value):
+            # Try to convert to float
+            try:
+                value = float(value)
+                return value
+            except ValueError:
+                return None
+        # If not string or float, it needs to be int
+        else:
+            # Try to convert to int
+            try:
+                value = int(value)
+                return value
+            except ValueError:
+                return None
+
+        # If it gets to this point then the param is invalid
+        return None
+
+    # Console Functions
+
     def preloop(self):
         """Prints if isatty is false"""
         if not sys.__stdin__.isatty():
@@ -72,7 +135,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is '}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -112,15 +175,34 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
+    def do_create(self, arg):
         """ Create an object of any class"""
-        if not args:
+        args = arg.split()
+        attr_dic = {}
+
+        if not arg:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+        elif args[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
+        # Create new object
+        new_instance = HBNBCommand.classes[args[0]]()
+
+        # validate format exists
+        if ('=' in arg):
+            # Check each argument and create dictionary of values
+            for param in args:
+                if ('=' in param):
+                    key = param[:param.find('=')]
+
+                    value = HBNBCommand.get_value_format(param)
+                    # if the value is none we ignore this param
+                    if (value is None):
+                        continue
+                    # Add and set attribute to object
+                    setattr(new_instance, key, value)
+
         storage.save()
         print(new_instance.id)
         storage.save()
@@ -271,7 +353,7 @@ class HBNBCommand(cmd.Cmd):
                 args.append(v)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -279,10 +361,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
