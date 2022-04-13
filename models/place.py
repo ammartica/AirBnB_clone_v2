@@ -9,6 +9,7 @@ from models.engine.file_storage import FileStorage
 
 fs = FileStorage()
 
+
 class Place(BaseModel, Base):
     """ class represents Place object """
     __tablename__ = "places"
@@ -27,9 +28,12 @@ class Place(BaseModel, Base):
     """I have to find a way to do the following for DBStorage only"""
     reviews = relationship("Review", backref=place, cascade="all, delete")
 
-    """I have to find a way to do the following for FileStorage only"""
     @property
     def reviews(self):
-        """ getter method for reviews"""
+        """ getter method for reviews when place_id == Place.id"""
         reviews_list = []
         reviews = fs.all(Review)
+        for review in reviews.values():
+            if review.place_id == Place.id:
+                reviews_list.append(review)
+        return reviews_list
