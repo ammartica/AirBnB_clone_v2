@@ -5,7 +5,7 @@ from sqlalchemy import Column, String, ForeignKey, Integer, Float
 from sqlalchemy.orm import relationship
 from models.review import Review
 from models.engine.file_storage import FileStorage
-
+import os
 
 fs = FileStorage()
 
@@ -25,15 +25,16 @@ class Place(BaseModel, Base):
     longitude = Column(Float, nullable=False)
     amenity_ids = []
 
-    """I have to find a way to do the following for DBStorage only"""
-    reviews = relationship("Review", backref=place, cascade="all, delete")
+    if (os.getenv('HBNB_TYPE_STORAGE') == 'db'):
+        reviews = relationship("Review", backref=place, cascade="all, delete")
 
-    @property
-    def reviews(self):
-        """ getter method for reviews when place_id == Place.id"""
-        reviews_list = []
-        reviews = fs.all(Review)
-        for review in reviews.values():
-            if review.place_id == this.id:
-                reviews_list.append(review)
-        return reviews_list
+    else:
+        @property
+        def reviews(self):
+            """ getter method for reviews when place_id == Place.id"""
+            reviews_list = []
+            reviews = fs.all(Review)
+            for review in reviews.values():
+                if review.place_id == this.id:
+                    reviews_list.append(review)
+            return reviews_list

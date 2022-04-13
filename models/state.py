@@ -13,13 +13,13 @@ fs = FileStorage()
 class State(BaseModel, Base):
     """ State class """
     __tablename__ = 'states'
-    name = Column(Strin(128), nullable=False)
+    name = Column(String(128), nullable=False)
 
-    if (os.getenv('HBNB_TYPE_STORAGE') == 'db':
-            cities = relationship("City", backref="state",
-                cascade='all, delete, delete-orphan')
+    if (os.getenv('HBNB_TYPE_STORAGE') == 'db'):
+        cities = relationship("City", backref="state",
+                              cascade='all, delete, delete-orphan')
     else:
-       @property
+        @property
         def reviews(self):
             """ getter method for reviews when place_id == Place.id"""
             cities_list = []
@@ -28,4 +28,3 @@ class State(BaseModel, Base):
                 if city.state_id == self.id:
                     cities_list.append(city)
             return cities_list
- 
