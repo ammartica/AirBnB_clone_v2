@@ -3,7 +3,11 @@
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, ForeignKey, Integer, Float
 from sqlalchemy.orm import relationship
+from models.review import Review
+from models.engine.file_storage import FileStorage
 
+
+fs = FileStorage()
 
 class Place(BaseModel, Base):
     """ class represents Place object """
@@ -24,4 +28,8 @@ class Place(BaseModel, Base):
     reviews = relationship("Review", backref=place, cascade="all, delete")
 
     """I have to find a way to do the following for FileStorage only"""
-    
+    @property
+    def reviews(self):
+        """ getter method for reviews"""
+        reviews_list = []
+        reviews = fs.all(Review)
