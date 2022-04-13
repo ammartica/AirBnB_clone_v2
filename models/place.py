@@ -35,6 +35,6 @@ class Place(BaseModel, Base):
             reviews_list = []
             reviews = fs.all(Review)
             for review in reviews.values():
-                if review.place_id == this.id:
+                if review.place_id == self.id:
                     reviews_list.append(review)
             return reviews_list
