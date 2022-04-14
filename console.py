@@ -3,7 +3,7 @@
 import cmd
 import sys
 from models.base_model import BaseModel
-from models.__init__ import storage
+import models
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -203,9 +203,9 @@ class HBNBCommand(cmd.Cmd):
                     # Add and set attribute to object
                     setattr(new_instance, key, value)
 
-        storage.save()
+        models.storage.save()
         print(new_instance.id)
-        storage.save()
+        models.storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -236,7 +236,7 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage._FileStorage__objects[key])
+            print(models.storage.all(c_name)[key])
         except KeyError:
             print("** no instance found **")
 
@@ -269,7 +269,7 @@ class HBNBCommand(cmd.Cmd):
 
         try:
             del(storage.all()[key])
-            storage.save()
+            models.storage.save()
         except KeyError:
             print("** no instance found **")
 
@@ -374,7 +374,7 @@ class HBNBCommand(cmd.Cmd):
             args = [att_name, att_val]
 
         # retrieve dictionary of current objects
-        new_dict = storage.all()[key]
+        new_dict = models.storage.all()[key]
 
         # iterate through attr names and values
         for i, att_name in enumerate(args):

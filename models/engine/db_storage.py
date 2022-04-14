@@ -9,7 +9,7 @@ from models.city import City
 from models.state import State
 from models.amenity import Amenity
 from models.review import Review
-from sql.alchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound
 import os
 
 
@@ -44,15 +44,15 @@ class DBStorage:
             for key, value in self.__classes.items():
                 try:
                     result = self.__session.query(value).all()
-                except NoResultFound():
+                except:
                     pass
                 for obj in result:
                     new_key = key + "." + obj.id
                     obj_dict[new_key] = obj
         else:
-            result = self.__session.query(cls).all()
+            result = self.__session.query(self.__classes[cls]).all()
             for obj in result:
-                new_key = key + "." + obj.id
+                new_key = str(cls) + "." + obj.id
                 obj_dict[new_key] = obj
 
         return obj_dict
@@ -67,7 +67,7 @@ class DBStorage:
 
     def reload(self):
         ''' Creats all the tables in the current Database '''
-        Base.metadata.create_all(engine)
+        Base.metadata.create_all(self.__engine)
 
         # Creates session factory - creates session object with given rules
         session_factory = sessionmaker(bind=self.__engine,

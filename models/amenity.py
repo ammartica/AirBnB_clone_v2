@@ -7,7 +7,9 @@ from sqlalchemy.orm import relationship
 
 
 class Amenity(BaseModel, Base):
+    """ Inherits from BaseModel and Base for sqlalchemy"""
+
     __tablename__ = "amenities"
     name = Column(String(128), nullable=False)
     place_amenities = relationship("Place", secondary="place_amenity",
-                                   backref="amenities")
+                                   back_populates="amenities")
