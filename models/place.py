@@ -32,8 +32,10 @@ class Place(BaseModel, Base):
     amenity_ids = []
 
     if (os.getenv('HBNB_TYPE_STORAGE') == 'db'):
-        reviews = relationship("Review", backref=place, cascade="all, delete")
-        amenities = relationship("Amenity", secondary="place_amenity", view_only=False)
+        reviews = relationship("Review", backref=place,
+                               cascade="all, delete")
+        amenities = relationship("Amenity", secondary="place_amenity",
+                                 view_only=False)
 
     else:
         @property
@@ -48,7 +50,7 @@ class Place(BaseModel, Base):
 
         @property
         def amenities(self):
-            """ getter method for amenities returns list of Amenity instances"""
+            """ getter for amenities returns lit of Amenity instances """
             amenities_list = []
             amenities = fs.all(Amenity)
             for amenity in amenities.values():
