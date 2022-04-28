@@ -10,7 +10,7 @@ from datetime import datetime
 def do_pack():
     """ Compress to .tgz files"""
     try:
-        local("mkdir versions")
+        local("mkdir -p versions")
         now = datetime.now()
         date = now.strftime("%Y%m%d%H%M%S")
         file_name = "web_static_{}.tgz".format(date)
